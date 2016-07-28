@@ -23,13 +23,12 @@ BOT_ID = os.environ.get("BOT_ID")
 AT_BOT = "<@" + str(BOT_ID) + ">"
 EXAMPLE_COMMAND = "sum"
 
+DEFAULT_SUMMARY_LENGTH = 3
+
 var = os.environ.get('SLACK_BOT_TOKEN')
 
-print var, BOT_ID,AT_BOT
 # instantiate Slack clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-
-
 
 
 def handle_command(command, channel):
@@ -41,17 +40,22 @@ def handle_command(command, channel):
 
     print 'Msg received'
     response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-               "* command."
+               "* (x) command where x is the (optional) desired summary length (number of sentences). Default=1"
     if command.startswith(EXAMPLE_COMMAND):
-        response = "Sure...wait a second!"
+        #response = "Sure...wait a second!"
 
         slack_client.api_call("chat.postMessage", channel=channel,
                           text="Sure...here is your summary:", as_user=True)
 
-        command = command[4:]
-        print command
-
-        response = ss.summarize(command, 2)
+        if command[4].isdigit():
+            output_length = int(command[4])
+            command = command[6:]
+        else:
+            output_length = DEFAULT_SUMMARY_LENGTH
+            command = command[4:]
+        #print output_length
+        
+        response = ss.summarize(command, output_length)
     
         print response
 
